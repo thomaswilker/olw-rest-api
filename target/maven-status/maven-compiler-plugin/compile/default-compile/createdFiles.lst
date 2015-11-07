@@ -1,0 +1,17 @@
+olw\repository\AreaRepository.class
+olw\controller\IndexedMaterialController.class
+olw\repository\MaterialRepository.class
+olw\aop\RepositoryAdvices.class
+olw\WebConfiguration.class
+olw\model\TestFilter.class
+olw\ResourceProcessors$1.class
+olw\controller\MaterialController.class
+olw\model\MaterialProjection.class
+olw\OlwRestApiApplication.class
+olw\model\AbstractEntity.class
+olw\model\IndexedMaterial.class
+olw\model\Area.class
+olw\model\Material.class
+olw\repository\IndexedMaterialRepository.class
+olw\repository\MaterialEventHandler.class
+olw\ResourceProcessors.class

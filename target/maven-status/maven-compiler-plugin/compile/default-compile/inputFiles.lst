@@ -1,0 +1,16 @@
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\WebConfiguration.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\OlwRestApiApplication.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\model\IndexedMaterial.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\model\TestFilter.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\repository\MaterialRepository.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\model\Material.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\model\MaterialProjection.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\controller\MaterialController.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\model\AbstractEntity.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\repository\IndexedMaterialRepository.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\repository\AreaRepository.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\repository\MaterialEventHandler.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\aop\RepositoryAdvices.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\model\Area.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\controller\IndexedMaterialController.java
+D:\Users\t_wilker\workspace-sts\olw-rest-api\src\main\java\olw\ResourceProcessors.java
