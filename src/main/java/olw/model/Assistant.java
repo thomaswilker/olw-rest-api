@@ -18,4 +18,8 @@ public class Assistant extends AbstractUser {
 		super(firstName, lastName);
 	}
 	
+	public Assistant(Long id, String firstName, String lastName) {
+		super(id, firstName, lastName);
+	}
+	
 }

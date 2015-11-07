@@ -1,9 +1,7 @@
 package olw.model;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,7 +36,7 @@ public class Material extends AbstractEntity {
 	private Integer visits = 0;
 	
 	@ElementCollection
-	private Set<Tag> tags = new LinkedHashSet<>();
+	private Set<String> tags = new LinkedHashSet<>();
 	
 	@NotNull
 	@ManyToOne(cascade=CascadeType.ALL)

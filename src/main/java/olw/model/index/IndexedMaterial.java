@@ -2,8 +2,11 @@ package olw.model.index;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,16 +15,6 @@ import olw.model.Area;
 import olw.model.Language;
 import olw.model.Lecturer;
 import olw.model.License;
-import olw.model.Material;
-import olw.model.Tag;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Getter
 @Setter
@@ -48,7 +41,7 @@ public class IndexedMaterial {
 	
 	private List<Area> areas;
 	private List<Language> languages;
-	private List<Tag> tags;
+	private List<String> tags;
 	private List<Lecturer> lecturer;
 	
 	private License license;

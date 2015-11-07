@@ -28,6 +28,11 @@ public abstract class AbstractUser extends AbstractEntity {
 		this.lastName = lastName;
 	}
 	
+	public AbstractUser(Long id, String firstName, String lastName) {
+		this(firstName,lastName);
+		this.id = id;
+	}
+	
 	public AbstractUser(Long id) {
 		super(id);
 	}

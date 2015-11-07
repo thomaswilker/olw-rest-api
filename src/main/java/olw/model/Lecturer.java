@@ -39,7 +39,7 @@ public class Lecturer extends AbstractUser {
 	}
 	
 	public Lecturer(Long id, String firstName, String lastName) {
-		super(firstName, lastName);
+		super(id, firstName, lastName);
 	}
 	
 	public Lecturer(String firstName, String lastName) {

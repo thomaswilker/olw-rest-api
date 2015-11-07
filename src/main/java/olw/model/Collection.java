@@ -8,11 +8,9 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,6 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Collection extends AbstractEntity {
 
+	@NotNull
 	private String name = null;
 	private String note = null;
 	private String description = null;
@@ -33,15 +32,13 @@ public class Collection extends AbstractEntity {
 	private Boolean deleted = null;
 	
 	@NotNull 
-	@Size(min=1)
 	@ManyToMany(cascade=CascadeType.ALL)
 	private List<Lecturer> lecturers = new ArrayList<>();
 	
 	@ElementCollection
-	private Set<Tag> tags = new LinkedHashSet<>();
+	private Set<String> tags = new LinkedHashSet<>();
 	
 	@NotNull 
-	@Size(min=1)
 	@ManyToMany(cascade=CascadeType.ALL)
 	private List<Area> areas = new ArrayList<>();
 	

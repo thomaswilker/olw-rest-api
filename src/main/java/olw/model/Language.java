@@ -1,19 +1,36 @@
 package olw.model;
 
-import javax.persistence.Entity;
+import java.util.ArrayList;
+import java.util.List;
 
-import lombok.AllArgsConstructor;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper=true)
-@AllArgsConstructor
+@RequiredArgsConstructor
 @NoArgsConstructor
 public class Language extends AbstractEntity {
 
+	@NonNull
 	private String name;
-		
+	
+	public Language(Long id, String name) {
+		super(id);
+		this.name = name;
+	}
+
+	@JsonIgnore
+	@ManyToMany(mappedBy="languages")
+	private List<Material> materials = new ArrayList<>();
+	
 }
