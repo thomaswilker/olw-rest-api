@@ -9,7 +9,6 @@ import olw.model.Material;
 import olw.model.index.IndexedMaterial;
 import olw.repository.IndexedCollectionRepository;
 import olw.repository.IndexedMaterialRepository;
-import olw.service.ObjectToJsonConverter;
 
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -31,9 +30,6 @@ public class RepositoryAdvices {
 	
 	@Autowired
 	IndexedCollectionRepository collectionRepository;
-	
-	@Autowired
-	ObjectToJsonConverter converter;
 	
 	Logger logger = Logger.getLogger(this.getClass());
 	
