@@ -13,6 +13,7 @@ public class OlwRestApiApplication {
 	public static void main(String[] args) {
 		
 		SpringApplication.run(OlwRestApiApplication.class, args);
+		System.out.println("devtools");
 	}
     
     

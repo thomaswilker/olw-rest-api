@@ -7,9 +7,10 @@ import olw.model.Area;
 import olw.model.Collection;
 import olw.model.Material;
 import olw.model.index.IndexedCollection;
-import olw.model.index.IndexedMaterial;
 import olw.repository.index.IndexedCollectionRepository;
 import olw.repository.index.IndexedMaterialRepository;
+import olw.service.CollectionToIndexConverter;
+import olw.service.MaterialToIndexConverter;
 
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -17,6 +18,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +34,15 @@ public class RepositoryAdvices {
 	@Autowired
 	IndexedCollectionRepository collectionRepository;
 	
+	@Autowired
+	MaterialToIndexConverter materialConverter;
+	
+	@Autowired
+	ElasticsearchTemplate template;
+	
+	@Autowired
+	CollectionToIndexConverter collectionConverter;
+	
 	Logger logger = Logger.getLogger(this.getClass());
 	
 	@Autowired
@@ -43,7 +55,7 @@ public class RepositoryAdvices {
 		
 		
 		material = (Material) pjp.proceed();
-		materialRepository.save(mapper.convertValue(material, IndexedMaterial.class));
+		materialRepository.save(materialConverter.convert(material));
 		
 		return material;
 	}
@@ -52,7 +64,7 @@ public class RepositoryAdvices {
 	public Object collectionSave(ProceedingJoinPoint pjp, Collection collection) throws Throwable {
 		
 		collection = (Collection) pjp.proceed();
-		collectionRepository.save(mapper.convertValue(collection, IndexedCollection.class));
+		collectionRepository.save(collectionConverter.convert(collection));
 		
 		return collection;
 	}
@@ -64,10 +76,16 @@ public class RepositoryAdvices {
 		
 		List<IndexedCollection> collections = new ArrayList<>();
 		
-		for(Collection c : area.getCollections())
-			collections.add(mapper.convertValue(c, IndexedCollection.class));
+		for(Collection c : area.getCollections()) {
+			collections.add(collectionConverter.convert(c));
+		}
 			
+			
+		collectionRepository.delete(collections);
 		collectionRepository.save(collections);
+		//template.bulkUpdate(collections);
+		
+		
 		return area;
 	}
 	

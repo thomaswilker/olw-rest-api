@@ -65,11 +65,6 @@ public class IndexedMaterialController implements ResourceProcessor<RepositoryLi
 		return pick ? node.retain(fields) : node.without(fields);
 	}
 	
-	@RequestMapping("greeting")
-	public String greet() {
-		return "greets";
-	}
-	
 	@RequestMapping
 	public ResponseEntity<PagedResources<Object>> getMaterials(Pageable p, 
 			      											   @RequestParam MultiValueMap<String, Set<String>> params,

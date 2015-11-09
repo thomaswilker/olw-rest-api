@@ -39,7 +39,6 @@ public class IndexedMaterial {
 	protected Date date = new Date();
 	protected Integer visits = 0;
 	
-	private List<Area> areas;
 	private List<Language> languages;
 	private List<String> tags;
 	private List<Lecturer> lecturer;

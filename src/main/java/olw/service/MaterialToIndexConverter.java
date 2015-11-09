@@ -1,5 +1,7 @@
 package olw.service;
 
+import java.util.ArrayList;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +16,12 @@ public class MaterialToIndexConverter implements Converter<Material, IndexedMate
 	@Override
 	public IndexedMaterial convert(Material material) {
 		ObjectMapper mapper = new ObjectMapper();
-		return mapper.convertValue(material, IndexedMaterial.class);
+		IndexedMaterial im = mapper.convertValue(material, IndexedMaterial.class);
+		
+		im.setLanguages(new ArrayList<>(material.getLanguages()));
+		im.setLecturer(new ArrayList<>(material.getLecturer()));
+		im.setTags(new ArrayList<>(material.getTags()));
+		return im;
 	}
 
 	
