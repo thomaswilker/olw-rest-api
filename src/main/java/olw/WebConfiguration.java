@@ -24,6 +24,7 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages="olw.repository.index")
@@ -44,6 +45,17 @@ public class WebConfiguration extends RepositoryRestMvcConfiguration {
     	
     	conversionService.addConverter(materialConverter);
     }
+	
+	@Bean 
+	public ThreadPoolTaskExecutor getTaskExecutor() {
+		ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
+		exec.setCorePoolSize(5);
+		exec.setMaxPoolSize(10);
+		exec.setQueueCapacity(25);
+		return exec;
+	}
+	
+	
 	
 	@Override
     protected void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {

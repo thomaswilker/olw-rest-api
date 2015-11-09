@@ -1,15 +1,15 @@
 package olw.aop;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 
 import olw.model.Area;
 import olw.model.Collection;
 import olw.model.Material;
-import olw.model.index.IndexedCollection;
 import olw.repository.index.IndexedCollectionRepository;
 import olw.repository.index.IndexedMaterialRepository;
 import olw.service.CollectionToIndexConverter;
+import olw.service.IndexService;
 import olw.service.MaterialToIndexConverter;
 
 import org.apache.log4j.Logger;
@@ -19,7 +19,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +41,12 @@ public class RepositoryAdvices {
 	
 	@Autowired
 	CollectionToIndexConverter collectionConverter;
+	
+	@Autowired
+	IndexService indexService;
+	
+	@PersistenceUnit 
+	EntityManagerFactory entityManagerFactory;
 	
 	Logger logger = Logger.getLogger(this.getClass());
 	
@@ -74,16 +79,45 @@ public class RepositoryAdvices {
 		
 		area = (Area) pjp.proceed();
 		
-		List<IndexedCollection> collections = new ArrayList<>();
+		indexService.index(Area.class, area.getId());
 		
-		for(Collection c : area.getCollections())
-			collections.add(collectionConverter.convert(c));
-		
-		collectionRepository.delete(collections);
-		collectionRepository.save(collections);
-		
+		logger.info("return area");
 		
 		return area;
 	}
+	
+//	@Around(value="execution(* olw.repository.AreaRepository.save(..)) && args(area)")
+//	public Object areaSave(ProceedingJoinPoint pjp, Area area) throws Throwable  {
+//		
+//		area = (Area) pjp.proceed();
+//		final Long areaId = area.getId();
+//		
+//		taskExecutor.execute(() -> {  		
+//			
+//			EntityManager em = entityManagerFactory.createEntityManager();
+//        	Session session = em.unwrap(Session.class);
+//			Transaction tx = session.beginTransaction();
+//        	
+//			Area a = em.find(Area.class, areaId);
+//			List<IndexedCollection> collections = new ArrayList<>();
+//			
+//			logger.info("convert collections");
+//			for(Collection c : a.getCollections())
+//				collections.add(collectionConverter.convert(c));
+//			
+//			logger.info("remove collections from index");
+//			collectionRepository.delete(collections);
+//			
+//			logger.info("add updated collections to index");
+//			collectionRepository.save(collections);
+//        	
+//    		tx.commit();
+//			
+//		});
+//		
+//		logger.info("return area");
+//		
+//		return area;
+//	}
 	
 }

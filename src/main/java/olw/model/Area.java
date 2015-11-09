@@ -6,13 +6,14 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import olw.model.annotations.ContainedIn;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Data
@@ -32,6 +33,7 @@ public class Area extends AbstractEntity {
 	
 	@JsonIgnore
 	@ManyToMany(mappedBy="areas")
+	@ContainedIn
 	private List<Collection> collections = new ArrayList<>();
 	
 	
