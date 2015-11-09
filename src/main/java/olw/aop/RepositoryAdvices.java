@@ -76,14 +76,11 @@ public class RepositoryAdvices {
 		
 		List<IndexedCollection> collections = new ArrayList<>();
 		
-		for(Collection c : area.getCollections()) {
+		for(Collection c : area.getCollections())
 			collections.add(collectionConverter.convert(c));
-		}
-			
-			
+		
 		collectionRepository.delete(collections);
 		collectionRepository.save(collections);
-		//template.bulkUpdate(collections);
 		
 		
 		return area;
