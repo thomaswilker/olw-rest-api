@@ -3,21 +3,24 @@ package olw.aop;
 import java.util.ArrayList;
 import java.util.List;
 
+import olw.model.Area;
+import olw.model.Collection;
+import olw.model.Material;
+import olw.model.index.IndexedMaterial;
+import olw.repository.IndexedCollectionRepository;
+import olw.repository.IndexedMaterialRepository;
+import olw.service.ObjectToJsonConverter;
+
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.hibernate.mapping.IndexedCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import olw.model.Area;
-import olw.model.Collection;
-import olw.model.Material;
-import olw.model.index.IndexedCollection;
-import olw.repository.IndexedCollectionRepository;
-import olw.repository.IndexedMaterialRepository;
-import olw.service.CollectionToIndexConverter;
-import olw.service.MaterialToIndexConverter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Aspect
 @Component
@@ -30,20 +33,21 @@ public class RepositoryAdvices {
 	IndexedCollectionRepository collectionRepository;
 	
 	@Autowired
-	MaterialToIndexConverter mc;
-	
-	@Autowired
-	CollectionToIndexConverter cc;
+	ObjectToJsonConverter converter;
 	
 	Logger logger = Logger.getLogger(this.getClass());
 	
+	@Autowired
+	@Qualifier("objectMapper")
+	ObjectMapper mapper;
 	
 	
 	@Around(value="execution(* olw.repository.MaterialRepository.save(..)) && args(material)")
 	public Object materialSave(ProceedingJoinPoint pjp, Material material) throws Throwable  {
 		
+		
 		material = (Material) pjp.proceed();
-		materialRepository.save(mc.convert(material));
+		materialRepository.save(mapper.convertValue(material, IndexedMaterial.class));
 		
 		return material;
 	}
@@ -54,7 +58,7 @@ public class RepositoryAdvices {
 	public Object collectionSave(ProceedingJoinPoint pjp, Collection collection) throws Throwable {
 		
 		collection = (Collection) pjp.proceed();
-		collectionRepository.save(cc.convert(collection));
+		collectionRepository.save(mapper.convertValue(collection, IndexedCollection.class));
 		
 		return collection;
 	}
@@ -67,7 +71,7 @@ public class RepositoryAdvices {
 		List<IndexedCollection> collections = new ArrayList<>();
 		
 		for(Collection c : area.getCollections())
-			collections.add(cc.convert(c));
+			collections.add(mapper.convertValue(c, IndexedCollection.class));
 			
 		collectionRepository.save(collections);
 		return area;
