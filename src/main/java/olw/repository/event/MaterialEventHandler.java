@@ -9,7 +9,7 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
 @Component
-@RepositoryEventHandler(value=Material.class)
+@RepositoryEventHandler
 public class MaterialEventHandler {
 
 	@Autowired
@@ -17,7 +17,7 @@ public class MaterialEventHandler {
 	
 	@HandleAfterSave
 	public void handleMaterialSave(Material material) {
-		System.out.println("event handler material");
+		System.out.println("event handler material save");
 	}
 	
 }

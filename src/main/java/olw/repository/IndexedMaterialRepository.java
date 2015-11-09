@@ -6,6 +6,6 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchCrudReposi
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource(exported=false)
-public interface IndexedMaterialRepository extends ElasticsearchCrudRepository<IndexedMaterial, Long>{
+public interface IndexedMaterialRepository extends ElasticsearchCrudRepository<IndexedMaterial, Long> {
 
 }
