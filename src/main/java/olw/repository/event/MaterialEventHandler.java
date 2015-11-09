@@ -1,7 +1,7 @@
 package olw.repository.event;
 
 import olw.model.Material;
-import olw.repository.IndexedMaterialRepository;
+import olw.repository.index.IndexedMaterialRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;

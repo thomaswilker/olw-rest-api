@@ -1,4 +1,4 @@
-package olw.repository;
+package olw.repository.index;
 
 import olw.model.index.IndexedMaterial;
 

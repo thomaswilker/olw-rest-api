@@ -14,7 +14,7 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguratio
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages="olw.repositories")
+@EnableElasticsearchRepositories(basePackages="olw.repository.index")
 @EnableSpringDataWebSupport
 public class WebConfiguration extends RepositoryRestMvcConfiguration {
 

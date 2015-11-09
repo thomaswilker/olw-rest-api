@@ -6,15 +6,15 @@ import java.util.List;
 import olw.model.Area;
 import olw.model.Collection;
 import olw.model.Material;
+import olw.model.index.IndexedCollection;
 import olw.model.index.IndexedMaterial;
-import olw.repository.IndexedCollectionRepository;
-import olw.repository.IndexedMaterialRepository;
+import olw.repository.index.IndexedCollectionRepository;
+import olw.repository.index.IndexedMaterialRepository;
 
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.hibernate.mapping.IndexedCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;

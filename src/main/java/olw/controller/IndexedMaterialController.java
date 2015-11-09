@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import olw.model.index.IndexedMaterial;
-import olw.repository.IndexedMaterialRepository;
+import olw.repository.index.IndexedMaterialRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

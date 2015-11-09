@@ -43,12 +43,10 @@ public class Material extends AbstractEntity {
 	private License license;
 	
 	@NotNull 
-	@Size(min=1)
 	@ManyToMany(cascade=CascadeType.ALL)
 	private Set<Language> languages = new LinkedHashSet<>();
 	
 	@NotNull 
-	@Size(min=1)
 	@ManyToMany(cascade=CascadeType.ALL)
 	private Set<Lecturer> lecturer = new LinkedHashSet<>();
 	
