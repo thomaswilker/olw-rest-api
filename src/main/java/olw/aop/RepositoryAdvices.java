@@ -41,9 +41,10 @@ public class RepositoryAdvices {
 	@Around(value="execution(* olw.repository.MaterialRepository.save(..)) && args(material)")
 	public Object materialSave(ProceedingJoinPoint pjp, Material material) throws Throwable  {
 		
-		
+		logger.info("index material");
 		material = (Material) pjp.proceed();
 		materialRepository.save(materialConverter.convert(material));
+		//indexService.index(material.getClass(), material.getId());
 		
 		return material;
 	}
@@ -51,6 +52,7 @@ public class RepositoryAdvices {
 	@Around(value="execution(* olw.repository.CollectionRepository.save(..)) && args(collection)")
 	public Object collectionSave(ProceedingJoinPoint pjp, Collection collection) throws Throwable {
 		
+		logger.info("index collection");
 		collection = (Collection) pjp.proceed();
 		collectionRepository.save(collectionConverter.convert(collection));
 		

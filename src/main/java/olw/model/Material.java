@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import olw.model.annotations.ContainedIn;
 import olw.model.annotations.IndexedBy;
 import olw.model.index.IndexedMaterial;
 
@@ -56,9 +57,10 @@ public class Material extends AbstractEntity {
 	@ManyToMany(cascade=CascadeType.ALL)
 	private Set<Lecturer> lecturers = new LinkedHashSet<>();
 	
-	@JsonIgnore(true)
+	@JsonIgnore
 	@NotNull
 	@ManyToMany(mappedBy="materials")
+	@ContainedIn
 	private List<Collection> collections = new ArrayList<>();
 	
 	
