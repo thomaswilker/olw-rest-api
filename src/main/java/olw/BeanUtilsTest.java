@@ -1,17 +1,23 @@
 package olw;
 
-import java.util.Arrays;
+import java.lang.reflect.Field;
 
-import olw.model.Area;
-import olw.model.annotations.ContainedIn;
+import org.springframework.core.GenericCollectionTypeResolver;
+
+import olw.model.AbstractEntity;
+import olw.model.Material;
+import olw.model.annotations.IndexedBy;
 
 public class BeanUtilsTest {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NoSuchFieldException, SecurityException {
 		
-		Area a = new Area(1l, "Informatik");
+		System.out.println(Material.class.getAnnotation(IndexedBy.class).value());
 		
-		Arrays.stream(a.getClass().getDeclaredFields()).filter(x -> x.isAnnotationPresent(ContainedIn.class));
+		Field field = Material.class.getDeclaredField("collections");
+		Class c = GenericCollectionTypeResolver.getCollectionFieldType(field);
+		System.out.println(c.isAnnotationPresent(IndexedBy.class));
+		System.out.println(AbstractEntity.class.isAssignableFrom(c));
 			  
 	}
 

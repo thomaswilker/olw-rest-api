@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import olw.model.annotations.ContainedIn;
 
 @Entity
 @Data
@@ -31,6 +32,7 @@ public class Language extends AbstractEntity {
 
 	@JsonIgnore
 	@ManyToMany(mappedBy="languages")
+	@ContainedIn
 	private List<Material> materials = new ArrayList<>();
 	
 }

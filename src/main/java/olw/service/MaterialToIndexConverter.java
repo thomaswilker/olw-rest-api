@@ -19,7 +19,7 @@ public class MaterialToIndexConverter implements Converter<Material, IndexedMate
 		IndexedMaterial im = mapper.convertValue(material, IndexedMaterial.class);
 		
 		im.setLanguages(new ArrayList<>(material.getLanguages()));
-		im.setLecturer(new ArrayList<>(material.getLecturer()));
+		im.setLecturer(new ArrayList<>(material.getLecturers()));
 		im.setTags(new ArrayList<>(material.getTags()));
 		return im;
 	}

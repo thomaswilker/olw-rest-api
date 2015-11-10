@@ -21,7 +21,7 @@ import olw.model.License;
 @Document(indexName = "materials", type = "material" , shards = 1, replicas = 1, indexStoreType = "fs", refreshInterval = "1")
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class IndexedMaterial {
+public class IndexedMaterial extends IndexedEntity {
 
 	@Id
 	private Long id;

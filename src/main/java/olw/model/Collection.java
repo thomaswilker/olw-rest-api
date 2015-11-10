@@ -15,12 +15,15 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import olw.model.annotations.IndexedBy;
+import olw.model.index.IndexedCollection;
 
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper=false)
 @NoArgsConstructor
+@IndexedBy(IndexedCollection.class)
 public class Collection extends AbstractEntity {
 
 	@NotNull
@@ -45,11 +48,6 @@ public class Collection extends AbstractEntity {
 	@NotNull 
 	@ManyToMany(cascade=CascadeType.ALL)
 	protected List<Material> materials = new ArrayList<>();
-	
-	
-	//protected Set<Semester> semesters = null;
-	//protected List<ExternalResource> externalResources = null;
-	//protected CollectionType type = null;
 	
 	
 }

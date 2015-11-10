@@ -14,16 +14,19 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import olw.model.annotations.IndexedBy;
+import olw.model.index.IndexedMaterial;
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper=false)
 @NoArgsConstructor
+@IndexedBy(IndexedMaterial.class)
 public class Material extends AbstractEntity {
 	
 	private String uuid = UUID.randomUUID().toString();
@@ -51,7 +54,7 @@ public class Material extends AbstractEntity {
 	
 	@NotNull 
 	@ManyToMany(cascade=CascadeType.ALL)
-	private Set<Lecturer> lecturer = new LinkedHashSet<>();
+	private Set<Lecturer> lecturers = new LinkedHashSet<>();
 	
 	@JsonIgnore(true)
 	@NotNull

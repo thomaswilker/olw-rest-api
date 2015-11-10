@@ -12,6 +12,7 @@ import olw.model.Language;
 import olw.model.Lecturer;
 import olw.model.License;
 import olw.model.Material;
+import olw.service.CollectionToIndexConverter;
 import olw.service.MaterialToIndexConverter;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,10 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 public class WebConfiguration extends RepositoryRestMvcConfiguration {
 
 	@Autowired
-	MaterialToIndexConverter materialConverter;
+	MaterialToIndexConverter materialIndexConverter;
 	
+	@Autowired
+	CollectionToIndexConverter collectionIndexConverter;
 	
 	@Bean
 	public ElasticsearchOperations elasticsearchTemplate() {
@@ -43,7 +46,8 @@ public class WebConfiguration extends RepositoryRestMvcConfiguration {
 	@Override
 	protected void configureConversionService(ConfigurableConversionService conversionService) {
     	
-    	conversionService.addConverter(materialConverter);
+    	conversionService.addConverter(materialIndexConverter);
+    	conversionService.addConverter(collectionIndexConverter);
     }
 	
 	@Bean 

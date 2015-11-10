@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Document(indexName = "collections", type = "collection" , shards = 1, replicas = 1, indexStoreType = "fs", refreshInterval = "1")
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class IndexedCollection {
+public class IndexedCollection extends IndexedEntity {
 
 	@Id
 	private Long id;

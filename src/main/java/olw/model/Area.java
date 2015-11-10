@@ -32,8 +32,8 @@ public class Area extends AbstractEntity {
 
 	
 	@JsonIgnore
-	@ManyToMany(mappedBy="areas")
 	@ContainedIn
+	@ManyToMany(mappedBy="areas")
 	private List<Collection> collections = new ArrayList<>();
 	
 	

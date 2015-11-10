@@ -1,6 +1,7 @@
 package olw.model;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Basic;
@@ -11,12 +12,12 @@ import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import olw.model.annotations.ContainedIn;
 
 @Entity
 @Data
@@ -31,9 +32,6 @@ public class Lecturer extends AbstractUser {
 	@JsonIgnore
 	protected Photo photo = null;
 	
-	@ManyToMany(cascade=CascadeType.PERSIST)
-	private Set<Assistant> assistants = new HashSet<>();
-	
 	public Lecturer(Long id) {
 		super(id);
 	}
@@ -45,6 +43,19 @@ public class Lecturer extends AbstractUser {
 	public Lecturer(String firstName, String lastName) {
 		super(firstName, lastName);
 	}
+	
+	@ManyToMany(cascade=CascadeType.PERSIST)
+	private Set<Assistant> assistants = new HashSet<>();
+	
+	@JsonIgnore
+	@ContainedIn
+	@ManyToMany(mappedBy="lecturers")
+	private List<Material> materials;
+	
+	@JsonIgnore
+	@ContainedIn
+	@ManyToMany(mappedBy="lecturers")
+	private List<Collection> collections;
 	
 	@Embeddable
 	@Data
