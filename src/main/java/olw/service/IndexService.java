@@ -3,8 +3,6 @@ package olw.service;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -13,7 +11,6 @@ import javax.transaction.Transactional;
 import org.jboss.logging.Logger;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.GenericCollectionTypeResolver;
@@ -50,25 +47,42 @@ public class IndexService {
 	
 	@Async
 	@Transactional
+	@SuppressWarnings("unchecked")
 	public <T extends AbstractEntity> void index(Class<T> entityClass, Long id) {
     	
-		// retrieve all registered repositories 
+		logger.info(String.format("index entity %s", entityClass.getName()));
+		
+		// all registered repositories 
 		repositories = new Repositories(context);
 		
 		// initialize entity
 		T entity = entityManager.find(entityClass, id);
     	
+		// Index entity if class is annotated with @IndexedBy
+		if(entity.getClass().isAnnotationPresent(IndexedBy.class)) {
+			
+			Class<? extends IndexedEntity> targetClass = entity.getClass().getAnnotation(IndexedBy.class).value();
+			ElasticsearchCrudRepository<IndexedEntity, Long> repo = (ElasticsearchCrudRepository<IndexedEntity, Long>) repositories.getRepositoryFor(targetClass);
+			
+			// a converter must be provided
+			if(conversionService.canConvert(entity.getClass(), targetClass)) {
+				repo.save(conversionService.convert(entity, targetClass));
+			} else {
+				logger.info(String.format("No converter provided for conversion from %s to %s", entity.getClass().getName(), targetClass.getName()));
+			}
+		}
+		
     	// Get all declared Fields
     	Field[] fields = entity.getClass().getDeclaredFields();
     	
-    	// iterate only annotated fields an run indexation
+    	// iterate fields, filter by @ContainedIn, run indexation
     	Arrays.stream(fields)
     		  .filter(f -> f.isAnnotationPresent(ContainedIn.class))
     		  .forEach(f -> run(f,entity));
     }
 	
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked"})
 	private <T> void run(Field f, T a) {
 		
 		BeanWrapper wrapper =new BeanWrapperImpl(a);
@@ -83,16 +97,15 @@ public class IndexService {
 				Class<? extends AbstractEntity> type = (Class<? extends AbstractEntity>) GenericCollectionTypeResolver.getCollectionFieldType(f);
 				
 				if(AbstractEntity.class.isAssignableFrom(type) && type.isAnnotationPresent(IndexedBy.class)) {
-					Class<? extends IndexedEntity> indexedBy = type.getAnnotation(IndexedBy.class).value();
-					List<? extends IndexedEntity> indexedElements = c.stream().map(ce -> conversionService.convert(ce, indexedBy)).collect(Collectors.toList());
-					ElasticsearchCrudRepository repository = (ElasticsearchCrudRepository) repositories.getRepositoryFor(indexedBy);
-			    	repository.delete(indexedElements);
-					repository.save(indexedElements);
+					c.stream().forEach(ce -> index(ce.getClass(), ce.getId()));
 				}
-				
+			} else if(o instanceof AbstractEntity && o.getClass().isAnnotationPresent(IndexedBy.class)) {
+				AbstractEntity e = (AbstractEntity) o; 
+				index(e.getClass(), e.getId());
 			}
+			
 		} catch(Exception e) {
-			logger.info("error occured: " + e.getMessage());
+			logger.info(String.format("exception of type %s. message: %s", e.getClass(), e.getMessage()));
 		};
 		
 	}

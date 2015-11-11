@@ -56,11 +56,13 @@ public class CollectionController {
 		m1.getTags().addAll(Arrays.asList("Kürzeste Wege","Graphentheorie","Dijkstra"));
 		materialRepository.save(m1);
 		
+		Lecturer lecturer2 = new Lecturer(2l, "Hans", "Dampf");
 		Collection c = new Collection();
 		c.getAreas().addAll(Arrays.asList(new Area(1l,"Informatik"), new Area(2l,"Maschinenbau")));
 		c.getTags().addAll(Arrays.asList("Informatik","Grundlagen","Graphentheorie"));
 		c.getMaterials().add(m1);
 		c.setName("Grundlagen der Informatik II");
+		c.getLecturers().add(lecturer2);
 		
 		return new ResponseEntity<Collection>(collectionRepository.save(c), HttpStatus.ACCEPTED);
 		
