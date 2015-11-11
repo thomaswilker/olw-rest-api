@@ -5,16 +5,6 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 import java.util.Arrays;
 import java.util.List;
 
-import olw.model.Area;
-import olw.model.Assistant;
-import olw.model.Collection;
-import olw.model.Language;
-import olw.model.Lecturer;
-import olw.model.License;
-import olw.model.Material;
-import olw.service.CollectionToIndexConverter;
-import olw.service.MaterialToIndexConverter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +15,17 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+
+import olw.model.Area;
+import olw.model.Assistant;
+import olw.model.Collection;
+import olw.model.Language;
+import olw.model.Lecturer;
+import olw.model.License;
+import olw.model.Material;
+import olw.service.CollectionToIndexConverter;
+import olw.service.MaterialToIndexConverter;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages="olw.repository.index")
@@ -49,17 +49,6 @@ public class WebConfiguration extends RepositoryRestMvcConfiguration {
     	conversionService.addConverter(materialIndexConverter);
     	conversionService.addConverter(collectionIndexConverter);
     }
-	
-	@Bean 
-	public ThreadPoolTaskExecutor getTaskExecutor() {
-		ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
-		exec.setCorePoolSize(5);
-		exec.setMaxPoolSize(10);
-		exec.setQueueCapacity(25);
-		return exec;
-	}
-	
-	
 	
 	@Override
     protected void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {

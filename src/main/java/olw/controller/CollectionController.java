@@ -9,8 +9,10 @@ import olw.model.Language;
 import olw.model.Lecturer;
 import olw.model.License;
 import olw.model.Material;
+import olw.model.Section;
 import olw.repository.CollectionRepository;
 import olw.repository.MaterialRepository;
+import olw.repository.SectionRepository;
 import olw.repository.index.IndexedCollectionRepository;
 import olw.repository.index.IndexedMaterialRepository;
 
@@ -37,6 +39,9 @@ public class CollectionController {
 	@Autowired
 	IndexedMaterialRepository indexedMaterialRepository;
 	
+	@Autowired
+	SectionRepository sectionRepository;
+	
 	@RequestMapping("/init")
 	public ResponseEntity<Collection> initMaterials() {
 		
@@ -44,6 +49,7 @@ public class CollectionController {
 		indexedMaterialRepository.deleteAll();
 		collectionRepository.deleteAll();
 		materialRepository.deleteAll();
+		sectionRepository.deleteAll();
 		
 		Lecturer lecturer = new Lecturer(1l, "Thomas", "Wilker");
 		Assistant assistant = new Assistant(1l, "Erik", "Schnellbacher");
@@ -58,7 +64,14 @@ public class CollectionController {
 		
 		Lecturer lecturer2 = new Lecturer(2l, "Hans", "Dampf");
 		Collection c = new Collection();
-		c.getAreas().addAll(Arrays.asList(new Area(1l,"Informatik"), new Area(2l,"Maschinenbau")));
+		
+		Section iw = new Section(1l, "Ingeneurswissenschaften");
+		Section nw = new Section(2l, "Naturwissenschaften");
+		
+		Area mathematik = new Area(1l,"Mathematik", nw);
+		Area informatik = new Area(2l,"Informatik", iw);
+		
+		c.getAreas().addAll(Arrays.asList(mathematik, informatik));
 		c.getTags().addAll(Arrays.asList("Informatik","Grundlagen","Graphentheorie"));
 		c.getMaterials().add(m1);
 		c.setName("Grundlagen der Informatik II");

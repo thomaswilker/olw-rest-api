@@ -1,6 +1,5 @@
 package olw.aop;
 
-import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,10 +16,8 @@ public class RepositoryAdvices {
 	@Autowired
 	IndexService indexService;
 	
-	Logger logger = Logger.getLogger(this.getClass());
-	
 	@Around(value="execution(* olw.repository.*.save(..)) && args(abstractEntity)")
-	public Object areaSave(ProceedingJoinPoint pjp, AbstractEntity abstractEntity) throws Throwable  {
+	public Object entitySave(ProceedingJoinPoint pjp, AbstractEntity abstractEntity) throws Throwable  {
 		
 		abstractEntity = (AbstractEntity) pjp.proceed();
 		indexService.index(abstractEntity.getClass(), abstractEntity.getId());
@@ -28,5 +25,7 @@ public class RepositoryAdvices {
 		return abstractEntity;
 	}
 
+	
+	
 	
 }

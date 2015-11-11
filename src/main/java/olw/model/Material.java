@@ -74,9 +74,6 @@ public class Material extends AbstractEntity {
 		this.description = description;
 	}
 	
-	// protected ResourceCharacteristic characteristic = new ResourceCharacteristic(2l);
-	// private List<ExternalResource> externalResources = null;
-	// private List<User> users = null;
-	// private List<URL> links = null;
+	
 	
 }

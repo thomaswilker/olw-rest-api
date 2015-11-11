@@ -3,17 +3,19 @@ package olw.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
-import olw.model.annotations.ContainedIn;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import olw.model.annotations.ContainedIn;
 
 @Entity
 @Data
@@ -25,9 +27,13 @@ public class Area extends AbstractEntity {
 	@NonNull
 	private String name;
 	
-	public Area(Long id, String name) {
+	@ManyToOne(cascade=CascadeType.ALL)
+	private Section section;
+	
+	public Area(Long id, String name, Section section) {
 		super(id);
 		this.name = name;
+		this.section = section;
 	}
 
 	
@@ -35,6 +41,7 @@ public class Area extends AbstractEntity {
 	@ContainedIn
 	@ManyToMany(mappedBy="areas")
 	private List<Collection> collections = new ArrayList<>();
+	
 	
 	
 }

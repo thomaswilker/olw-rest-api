@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -23,7 +24,8 @@ import olw.model.annotations.ContainedIn;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper=true)
-public class Lecturer extends AbstractUser {
+@DiscriminatorValue("LE")
+public class Lecturer extends User {
 
 	private String organization;
 	private String about;

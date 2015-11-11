@@ -1,13 +1,12 @@
 package olw.repository.event;
 
-import olw.model.Area;
-import olw.model.Material;
-import olw.repository.index.IndexedMaterialRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.HandleAfterSave;
+import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
+
+import olw.model.AbstractEntity;
+import olw.repository.index.IndexedMaterialRepository;
 
 @Component
 @RepositoryEventHandler
@@ -16,14 +15,10 @@ public class MaterialEventHandler {
 	@Autowired
 	IndexedMaterialRepository repository;
 	
-	@HandleAfterSave
-	public void handleMaterialSave(Material material) {
-		System.out.println("event handler material save");
-	}
-	
-	@HandleAfterSave
-	public void handleMaterialSave(Area area) {
-		System.out.println("event handler area save");
+	@HandleBeforeSave
+	//@PreAuthorize("hasRole('ADMIN')")
+	public void handleSave(AbstractEntity e) {	
+		System.out.println("before save of " + e.getClass());
 	}
 	
 }

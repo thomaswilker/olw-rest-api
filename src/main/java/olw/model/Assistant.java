@@ -1,5 +1,6 @@
 package olw.model;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 import lombok.Data;
@@ -10,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(callSuper=false)
 @NoArgsConstructor
-public class Assistant extends AbstractUser {
+@DiscriminatorValue("AS")
+public class Assistant extends User {
 	
 	public Assistant(Long id) {	super(id); }
 	
