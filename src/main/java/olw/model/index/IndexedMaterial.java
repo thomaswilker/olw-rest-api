@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.MultiField;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -26,6 +29,7 @@ public class IndexedMaterial extends IndexedEntity {
 	@Id
 	private Long id;
 	
+	@Field(indexAnalyzer="german", searchAnalyzer="german")
 	private String name;
 	private String description;
 	private Long version;

@@ -8,13 +8,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import olw.model.index.IndexedMaterial;
-import olw.repository.index.IndexedMaterialRepository;
-
+import org.elasticsearch.index.search.MultiMatchQuery.QueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ResultsExtractor;
+import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.data.rest.webmvc.RepositoryLinksResource;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.EntityLinks;
@@ -33,6 +36,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import olw.model.index.IndexedMaterial;
+import olw.repository.index.IndexedMaterialRepository;
+
 
 
 
@@ -46,6 +52,9 @@ public class IndexedMaterialController implements ResourceProcessor<RepositoryLi
 	@Autowired
 	private EntityLinks entityLinks;
 
+	@Autowired
+	ElasticsearchTemplate template;
+	
 	@Autowired
 	@Qualifier("objectMapper")
 	ObjectMapper mapper;
@@ -69,9 +78,11 @@ public class IndexedMaterialController implements ResourceProcessor<RepositoryLi
 	public ResponseEntity<PagedResources<Object>> getMaterials(Pageable p, 
 			      											   @RequestParam MultiValueMap<String, Set<String>> params,
 			      											   @RequestParam(required=false, value="fields") Set<String> fields,
-															   @RequestParam(required=false, defaultValue="true", value="pick") Boolean pick)  {
+															   @RequestParam(required=false, defaultValue="true", value="pick") Boolean pick,
+															   @RequestParam(required=false, value="q") String query)  {
 		
-		Page<IndexedMaterial> page = repository.findAll(p);
+		
+		Page<IndexedMaterial> page = repository.findAllByName(p, query);
 		PageMetadata metadata = new PageMetadata(page.getSize(), page.getNumber(), page.getTotalElements());
 		
 		List<Object> content = new ArrayList<Object>();

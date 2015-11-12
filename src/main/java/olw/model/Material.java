@@ -13,8 +13,10 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,6 +30,7 @@ import olw.model.index.IndexedMaterial;
 @EqualsAndHashCode(callSuper=false)
 @NoArgsConstructor
 @IndexedBy(IndexedMaterial.class)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Material extends AbstractEntity {
 	
 	private String uuid = UUID.randomUUID().toString();

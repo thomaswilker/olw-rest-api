@@ -47,6 +47,10 @@ public class Collection extends AbstractEntity {
 	
 	@NotNull 
 	@ManyToMany(cascade=CascadeType.ALL)
+	private List<Semester> semesters = new ArrayList<>();
+	
+	@NotNull 
+	@ManyToMany(cascade=CascadeType.ALL)
 	protected List<Material> materials = new ArrayList<>();
 	
 	
