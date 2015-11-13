@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +20,7 @@ import olw.model.annotations.ContainedIn;
 @EqualsAndHashCode(callSuper=true)
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class License extends AbstractEntity {
 
 	private String name;

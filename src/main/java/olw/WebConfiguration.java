@@ -27,6 +27,7 @@ import olw.model.Lecturer;
 import olw.model.License;
 import olw.model.Material;
 import olw.service.CollectionToIndexConverter;
+import olw.service.IntToSemesterPart;
 import olw.service.MaterialToIndexConverter;
 
 @Configuration
@@ -40,6 +41,10 @@ public class WebConfiguration extends RepositoryRestMvcConfiguration {
 	@Autowired
 	CollectionToIndexConverter collectionIndexConverter;
 
+	@Autowired
+	IntToSemesterPart intToSemesterPartConverter;
+
+	
 	@Bean
 	public ElasticsearchOperations elasticsearchTemplate() {
 		return new ElasticsearchTemplate(nodeBuilder().local(true).node().client());
@@ -50,6 +55,7 @@ public class WebConfiguration extends RepositoryRestMvcConfiguration {
 
 		conversionService.addConverter(materialIndexConverter);
 		conversionService.addConverter(collectionIndexConverter);
+		conversionService.addConverter(intToSemesterPartConverter);
 	}
 
 	@Override

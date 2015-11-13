@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -27,7 +28,10 @@ import olw.model.annotations.ContainedIn;
 @DiscriminatorValue("LE")
 public class Lecturer extends User {
 
+	private String title;
 	private String organization;
+	
+	@Size(max=1000)
 	private String about;
 	private String website;
 	
