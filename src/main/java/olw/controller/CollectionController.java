@@ -60,7 +60,7 @@ public class CollectionController {
 		Material m1 = new Material("Vorlesung 1", "Beschreibung");
 		m1.getLanguages().add(new Language(1l, "Deutsch"));
 		m1.getLecturers().add(lecturer);
-		m1.setLicense(new License(1l, "CC"));
+		m1.setLicense(new License(10l, "CC")); 
 		m1.getTags().addAll(Arrays.asList("Kürzeste Wege","Graphentheorie","Dijkstra"));
 		materialRepository.save(m1);
 		

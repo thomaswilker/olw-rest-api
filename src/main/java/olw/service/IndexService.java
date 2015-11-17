@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.GenericCollectionTypeResolver;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.elasticsearch.repository.ElasticsearchCrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.support.Repositories;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -48,37 +49,56 @@ public class IndexService {
 	@Async
 	@Transactional
 	@SuppressWarnings("unchecked")
-	public <T extends AbstractEntity> void index(Class<T> entityClass, Long id) {
+	public <T extends AbstractEntity> void indexAll(Collection<T> entities) {
+		
+		entities.forEach(e -> index(e));
+		
+	}
+	
+	@Async
+	@Transactional
+	public <T extends AbstractEntity> void indexOne(T e) {
+		index(e);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends AbstractEntity> void index(T e) {
     	
-		logger.info(String.format("index entity %s", entityClass.getName()));
+		logger.info(String.format("index entity %s with id %s", e.getClass(), e.getId()));
 		
 		// all registered repositories 
 		repositories = new Repositories(context);
 		
 		// initialize entity
-		T entity = entityManager.find(entityClass, id);
-    	
-		// Index entity if class is annotated with @IndexedBy
-		if(entity.getClass().isAnnotationPresent(IndexedBy.class)) {
+		T entity = entityManager.merge(e);
+    	//JpaRepository<T,Long> repository = (JpaRepository<T, Long>) repositories.getRepositoryFor(entityClass);
+		System.out.println(entity);
+		
+		if(entity != null) {
 			
-			Class<? extends IndexedEntity> targetClass = entity.getClass().getAnnotation(IndexedBy.class).value();
-			ElasticsearchCrudRepository<IndexedEntity, Long> repo = (ElasticsearchCrudRepository<IndexedEntity, Long>) repositories.getRepositoryFor(targetClass);
-			
-			// a converter must be provided
-			if(conversionService.canConvert(entity.getClass(), targetClass)) {
-				repo.save(conversionService.convert(entity, targetClass));
-			} else {
-				logger.info(String.format("No converter provided for conversion from %s to %s", entity.getClass().getName(), targetClass.getName()));
+			// Index entity if class is annotated with @IndexedBy
+			if(entity.getClass().isAnnotationPresent(IndexedBy.class)) {
+				
+				Class<? extends IndexedEntity> targetClass = entity.getClass().getAnnotation(IndexedBy.class).value();
+				ElasticsearchCrudRepository<IndexedEntity, Long> repo = (ElasticsearchCrudRepository<IndexedEntity, Long>) repositories.getRepositoryFor(targetClass);
+				
+				// a converter must be provided
+				if(conversionService.canConvert(entity.getClass(), targetClass)) {
+					repo.save(conversionService.convert(entity, targetClass));
+				} else {
+					logger.info(String.format("No converter provided for conversion from %s to %s", entity.getClass().getName(), targetClass.getName()));
+				}
 			}
+			
+	    	// Get all declared Fields
+	    	Field[] fields = entity.getClass().getDeclaredFields();
+	    	
+	    	// iterate fields, filter by @ContainedIn, run indexation
+	    	Arrays.stream(fields)
+	    		  .filter(f -> f.isAnnotationPresent(ContainedIn.class))
+	    		  .forEach(f -> run(f,entity));
 		}
 		
-    	// Get all declared Fields
-    	Field[] fields = entity.getClass().getDeclaredFields();
-    	
-    	// iterate fields, filter by @ContainedIn, run indexation
-    	Arrays.stream(fields)
-    		  .filter(f -> f.isAnnotationPresent(ContainedIn.class))
-    		  .forEach(f -> run(f,entity));
     }
 	
 	
@@ -97,11 +117,11 @@ public class IndexService {
 				Class<? extends AbstractEntity> type = (Class<? extends AbstractEntity>) GenericCollectionTypeResolver.getCollectionFieldType(f);
 				
 				if(AbstractEntity.class.isAssignableFrom(type) && type.isAnnotationPresent(IndexedBy.class)) {
-					c.stream().forEach(ce -> index(ce.getClass(), ce.getId()));
+					c.stream().forEach(ce -> index(ce));
 				}
 			} else if(o instanceof AbstractEntity && o.getClass().isAnnotationPresent(IndexedBy.class)) {
 				AbstractEntity e = (AbstractEntity) o; 
-				index(e.getClass(), e.getId());
+				index(e);
 			}
 			
 		} catch(Exception e) {

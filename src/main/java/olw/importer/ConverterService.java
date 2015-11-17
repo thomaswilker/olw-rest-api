@@ -2,7 +2,6 @@ package olw.importer;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -10,6 +9,9 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
@@ -34,25 +36,40 @@ import olw.model.Semester.Part;
 public class ConverterService {
 
 	private final ObjectMapper mapper = new ObjectMapper();
-	private Map<Long, JsonNode> licenses;
-	private Map<Long, JsonNode> lecturers;
+	private Map<Long, Long> licenses;
+	private Map<Long, Long> lecturers;
+	private Map<Long, Long> languages;
+	
+	@PersistenceContext
+	private EntityManager em;
 	
 	@PostConstruct
 	public void postConstruct() {
 		 
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		
 	}
 	
+	@Transactional
 	private Material convert(JsonNode node, Material o)  {
 		
 		Long licenseId = node.get("licenseType").asLong();
-		License license = convert(licenses.get(licenseId), License.class);
+		License license = em.find(License.class, licenses.get(licenseId));
 		
 		o.setLicense(license);
 		
 		ArrayNode users = (ArrayNode) node.get("users");
-		Set<Lecturer> lecturers = convert(users, Lecturer.class, HashSet::new);
-		o.setLecturers(lecturers);
+		Set<Lecturer> l = StreamSupport.stream(users.spliterator(), false)
+								.map(u -> em.find(Lecturer.class, lecturers.get(u.get("id").asLong())))
+								.collect(Collectors.toSet());
+		o.setLecturers(l);
+		
+		ArrayNode langArray = (ArrayNode) node.get("languages");
+		Set<Language> lang = StreamSupport.stream(langArray.spliterator(), false)
+				.map(u -> em.find(Language.class, languages.get(u.get("id").asLong())))
+				.collect(Collectors.toSet());
+		o.setLanguages(lang);
+	
 		
 		
 		return o;

@@ -13,21 +13,23 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import olw.model.annotations.ContainedIn;
 import olw.model.annotations.IndexedBy;
 import olw.model.index.IndexedMaterial;
 
 @Entity
-@Data
-@EqualsAndHashCode(callSuper=false)
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @IndexedBy(IndexedMaterial.class)
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -36,6 +38,8 @@ public class Material extends AbstractEntity {
 	private String uuid = UUID.randomUUID().toString();
 	private String name;
 	private String note;
+	
+	@Size(max=1000)
 	private String description;
 	
 	private Boolean open = false;
@@ -49,15 +53,15 @@ public class Material extends AbstractEntity {
 	private Set<String> tags = new LinkedHashSet<>();
 	
 	@NotNull
-	@ManyToOne(cascade=CascadeType.ALL)
+	@ManyToOne
 	private License license;
 	
 	@NotNull 
-	@ManyToMany(cascade=CascadeType.ALL)
+	@ManyToMany
 	private Set<Language> languages = new LinkedHashSet<>();
 	
 	@NotNull 
-	@ManyToMany(cascade=CascadeType.ALL)
+	@ManyToMany
 	private Set<Lecturer> lecturers = new LinkedHashSet<>();
 	
 	@JsonIgnore

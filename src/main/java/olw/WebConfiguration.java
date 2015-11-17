@@ -15,9 +15,6 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
-import org.springframework.http.MediaType;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 
 import olw.model.Area;
 import olw.model.Assistant;
@@ -65,11 +62,6 @@ public class WebConfiguration extends RepositoryRestMvcConfiguration {
 		config.exposeIdsFor(classes.toArray(new Class[] {}));
 	}
 
-	@Override
-	public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-		configurer.favorPathExtension(false).favorParameter(true).parameterName("mediaType").ignoreAcceptHeader(true)
-				.useJaf(false).defaultContentType(MediaType.APPLICATION_JSON)
-				.mediaType("xml", MediaType.APPLICATION_XML).mediaType("json", MediaType.APPLICATION_JSON);
-	}
+	
 
 }
