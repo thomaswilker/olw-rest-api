@@ -113,37 +113,37 @@ public class ImporterService {
 			ArrayNode array = find(url).asArray();
 			List<T> list = converterService.convert(array, forClass, ArrayList::new);
 			
-			result = list.stream().collect(Collectors.toMap(e -> e.getId(), e -> { em.persist(e); return e.getId();}));
+			result = list.stream().collect(Collectors.toMap(e -> e.getId(), e -> { repository.save(e); return e.getId();}));
 		}
 		
 		return result;
 	}
 	
-	@Transactional
 	public void importMaterials() {
 		
 		try {
-			ConverterService service = new ConverterService();
-			service.setLecturers(importEntity(Lecturer.class));
-			service.setLicenses(importEntity(License.class));
-			service.setLanguages(importEntity(Language.class));
-			
-			System.out.println("lecturers and licenses");
-			String materialUrl = restCollection.get(Material.class);
-			List<JsonNode> list = StreamSupport.stream(find(materialUrl).asArray().spliterator(), false)
-															  .limit(20)
-															  .collect(Collectors.toList());
-			
-			System.out.println("size: " + list.size());
-			List<Material> materials = service.convert(list, Material.class, ArrayList::new);
 			
 			indexedMaterialRepository.deleteAll();
 			materialRepository.deleteAll();
 			lecturerRepository.deleteAll();
 			licenseRepository.deleteAll();
+			
+			Map<Long, Long> lecturersMap = importEntity(Lecturer.class);
+			Map<Long, Long> licensesMap = importEntity(License.class);
+			Map<Long, Long> languagesMap = importEntity(Language.class);
+			
+			converterService.setLecturers(lecturersMap);
+			converterService.setLicenses(licensesMap);
+			converterService.setLanguages(languagesMap);
+			
+			String materialUrl = restCollection.get(Material.class);
+			List<JsonNode> list = StreamSupport.stream(find(materialUrl).asArray().spliterator(), false)
+															  .collect(Collectors.toList());
+			
+			List<Material> materials = converterService.convert(list, Material.class, ArrayList::new);
 			materialRepository.save(materials);
 			
-			//System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(material));
+			
 		} catch(Exception e) {
 			logger.info(e.getMessage());
 		}

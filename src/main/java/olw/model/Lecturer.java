@@ -1,5 +1,6 @@
 package olw.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,12 +57,12 @@ public class Lecturer extends User {
 	@JsonIgnore
 	@ContainedIn
 	@ManyToMany(mappedBy="lecturers")
-	private List<Material> materials;
+	private List<Material> materials = new ArrayList<>();
 	
 	@JsonIgnore
 	@ContainedIn
 	@ManyToMany(mappedBy="lecturers")
-	private List<Collection> collections;
+	private List<Collection> collections = new ArrayList<>();
 	
 	@Embeddable
 	@Data

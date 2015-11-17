@@ -62,17 +62,17 @@ public class IndexService {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Transactional
 	public <T extends AbstractEntity> void index(T e) {
     	
-		logger.info(String.format("index entity %s with id %s", e.getClass(), e.getId()));
+		//logger.info(String.format("index entity %s with id %s", e.getClass(), e.getId()));
 		
 		// all registered repositories 
 		repositories = new Repositories(context);
 		
 		// initialize entity
-		T entity = entityManager.merge(e);
-    	//JpaRepository<T,Long> repository = (JpaRepository<T, Long>) repositories.getRepositoryFor(entityClass);
-		System.out.println(entity);
+		JpaRepository<T,Long> repository = (JpaRepository<T, Long>) repositories.getRepositoryFor(e.getClass());
+		T entity = repository.findOne(e.getId());
 		
 		if(entity != null) {
 			
@@ -97,6 +97,8 @@ public class IndexService {
 	    	Arrays.stream(fields)
 	    		  .filter(f -> f.isAnnotationPresent(ContainedIn.class))
 	    		  .forEach(f -> run(f,entity));
+		} else {
+			System.out.println(String.format("can't find entity of class of class %s with id %s", e.getClass(), e.getId()));
 		}
 		
     }
