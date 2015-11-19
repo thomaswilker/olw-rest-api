@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import olw.model.annotations.IndexEmbedded;
 import olw.model.annotations.IndexedBy;
 import olw.model.index.IndexedCollection;
 
@@ -36,20 +37,21 @@ public class Collection extends AbstractEntity {
 	
 	@NotNull 
 	@ManyToMany(cascade=CascadeType.ALL)
-	private List<Lecturer> lecturers = new ArrayList<>();
+	private Set<Lecturer> lecturers = new LinkedHashSet<>();
 	
 	@ElementCollection
 	private Set<String> tags = new LinkedHashSet<>();
 	
 	@NotNull 
 	@ManyToMany(cascade=CascadeType.ALL)
-	private List<Area> areas = new ArrayList<>();
+	private Set<Area> areas = new LinkedHashSet<>();
 	
 	@NotNull 
 	@ManyToMany(cascade=CascadeType.ALL)
-	private List<Semester> semesters = new ArrayList<>();
+	private Set<Semester> semesters = new LinkedHashSet<>();
 	
-	@NotNull 
+	@NotNull
+	//@IndexEmbedded
 	@ManyToMany(cascade=CascadeType.ALL)
 	protected List<Material> materials = new ArrayList<>();
 	

@@ -33,10 +33,10 @@ public class IndexedCollection extends IndexedEntity {
 	private Date date;
 	private Boolean newest = false;
 	private Boolean deleted = false;
-	
-	private List<Lecturer> lecturers = new ArrayList<>();
+	 
+	private Set<Lecturer> lecturers = new LinkedHashSet<>();
 	private Set<String> tags = new LinkedHashSet<>();
-	private List<Area> areas = new ArrayList<>();
+	private Set<Area> areas = new LinkedHashSet<>();
 	protected List<IndexedMaterial> materials = new ArrayList<>();
 	
 }

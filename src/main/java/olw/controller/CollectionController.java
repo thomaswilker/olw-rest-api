@@ -67,8 +67,8 @@ public class CollectionController {
 		Lecturer lecturer2 = new Lecturer(2l, "Hans", "Dampf");
 		Collection c = new Collection();
 		
-		Section iw = new Section(1l, "Ingeneurswissenschaften");
-		Section nw = new Section(2l, "Naturwissenschaften");
+		Section iw = new Section("iw", "Ingeneurswissenschaften");
+		Section nw = new Section("nw", "Naturwissenschaften");
 		
 		Area mathematik = new Area(1l,"Mathematik", nw);
 		Area informatik = new Area(2l,"Informatik", iw);

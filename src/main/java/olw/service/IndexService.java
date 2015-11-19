@@ -1,9 +1,15 @@
 package olw.service;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
@@ -25,6 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import olw.model.AbstractEntity;
 import olw.model.annotations.ContainedIn;
+import olw.model.annotations.IndexEmbedded;
 import olw.model.annotations.IndexedBy;
 import olw.model.index.IndexedEntity;
 
@@ -46,68 +53,60 @@ public class IndexService {
 	
 	private final Logger logger = Logger.getLogger(this.getClass());
 	
+	
+	@PostConstruct
+	public void postConstruct() {
+		repositories = new Repositories(context);
+	}
+	
 	@Async
 	@Transactional
-	@SuppressWarnings("unchecked")
 	public <T extends AbstractEntity> void indexAll(Collection<T> entities) {
-		
-		entities.forEach(e -> index(e));
-		
+		entities.forEach(e -> writeToIndexRecursivly(e));
 	}
 	
 	@Async
 	@Transactional
 	public <T extends AbstractEntity> void indexOne(T e) {
-		index(e);
+		writeToIndexRecursivly(e);
+	}
+	
+	
+	public <T extends AbstractEntity> void writeToIndexRecursivly(T e) {
+    	
+		logger.info(String.format("index entity %s with id %s", e.getClass(), e.getId()));
+		T entity = merge(e);
+		
+		writeToIndex(entity);
+		getAnnotatedFields(entity.getClass(), ContainedIn.class).forEach(f -> run(f, entity, this::writeToIndexRecursivly));
+		getAnnotatedFields(entity.getClass(), IndexEmbedded.class).forEach(f -> run(f, entity, this::writeToIndex));
+	    	
 	}
 	
 	@SuppressWarnings("unchecked")
-	@Transactional
-	public <T extends AbstractEntity> void index(T e) {
-    	
-		//logger.info(String.format("index entity %s with id %s", e.getClass(), e.getId()));
+	/**
+	 * Index entity if class is annotated with @IndexedBy and a converter is registered 
+	 * @param entity
+	 */
+	private <T extends AbstractEntity> void writeToIndex(T entity) {
 		
-		// all registered repositories 
-		repositories = new Repositories(context);
-		
-		// initialize entity
-		JpaRepository<T,Long> repository = (JpaRepository<T, Long>) repositories.getRepositoryFor(e.getClass());
-		T entity = repository.findOne(e.getId());
-		
-		if(entity != null) {
-			
-			// Index entity if class is annotated with @IndexedBy
-			if(entity.getClass().isAnnotationPresent(IndexedBy.class)) {
+		if(isIndexable(entity)) {
 				
-				Class<? extends IndexedEntity> targetClass = entity.getClass().getAnnotation(IndexedBy.class).value();
-				ElasticsearchCrudRepository<IndexedEntity, Long> repo = (ElasticsearchCrudRepository<IndexedEntity, Long>) repositories.getRepositoryFor(targetClass);
+			Class<? extends IndexedEntity> targetClass = entity.getClass().getAnnotation(IndexedBy.class).value();
+			ElasticsearchCrudRepository<IndexedEntity, Long> repo = (ElasticsearchCrudRepository<IndexedEntity, Long>) repositories.getRepositoryFor(targetClass);
 				
-				// a converter must be provided
-				if(conversionService.canConvert(entity.getClass(), targetClass)) {
-					repo.save(conversionService.convert(entity, targetClass));
-				} else {
-					logger.info(String.format("No converter provided for conversion from %s to %s", entity.getClass().getName(), targetClass.getName()));
-				}
+			if(conversionService.canConvert(entity.getClass(), targetClass)) {
+				repo.save(conversionService.convert(entity, targetClass));
+			} else {
+				logger.info(String.format("No converter provided for conversion from %s to %s", entity.getClass().getName(), targetClass.getName()));
 			}
-			
-	    	// Get all declared Fields
-	    	Field[] fields = entity.getClass().getDeclaredFields();
-	    	
-	    	// iterate fields, filter by @ContainedIn, run indexation
-	    	Arrays.stream(fields)
-	    		  .filter(f -> f.isAnnotationPresent(ContainedIn.class))
-	    		  .forEach(f -> run(f,entity));
-		} else {
-			System.out.println(String.format("can't find entity of class of class %s with id %s", e.getClass(), e.getId()));
 		}
-		
-    }
-	
+	}
 	
 	@SuppressWarnings({ "unchecked"})
-	private <T> void run(Field f, T a) {
+	private <T extends AbstractEntity> void run(Field f, Object entity, Consumer<T> indexFunction) {
 		
-		BeanWrapper wrapper =new BeanWrapperImpl(a);
+		BeanWrapper wrapper = new BeanWrapperImpl(entity);
 		
 		try { 
 			
@@ -115,15 +114,14 @@ public class IndexService {
 			
 			if(o instanceof Collection) {
 				
-				Collection<? extends AbstractEntity> c = (Collection<? extends AbstractEntity>) o;
-				Class<? extends AbstractEntity> type = (Class<? extends AbstractEntity>) GenericCollectionTypeResolver.getCollectionFieldType(f);
+				Collection<?> c = (Collection<?>) o;
+				Class<?> type = (Class<?>) GenericCollectionTypeResolver.getCollectionFieldType(f);
 				
 				if(AbstractEntity.class.isAssignableFrom(type) && type.isAnnotationPresent(IndexedBy.class)) {
-					c.stream().forEach(ce -> index(ce));
+					c.stream().forEach(ce -> indexFunction.accept((T) ce));
 				}
-			} else if(o instanceof AbstractEntity && o.getClass().isAnnotationPresent(IndexedBy.class)) {
-				AbstractEntity e = (AbstractEntity) o; 
-				index(e);
+			} else if(o instanceof AbstractEntity && isIndexable((T) o)) {
+				indexFunction.accept((T) o);
 			}
 			
 		} catch(Exception e) {
@@ -131,6 +129,28 @@ public class IndexService {
 		};
 		
 	}
+
+	@SuppressWarnings("unchecked")
+	private <T extends AbstractEntity> T merge(T entity) {
+		
+		JpaRepository<T,Long> repository = (JpaRepository<T, Long>) repositories.getRepositoryFor(entity.getClass());
+		return repository.findOne(entity.getId());
+	}
+
 	
+	private <T extends AbstractEntity> boolean isIndexable(T entity) {
+		return entity.getClass().isAnnotationPresent(IndexedBy.class);
+	}
+	
+	/**
+	 * Get all declared Fields of baseClass and filter all fields where annotation is present
+	 * @param baseClass
+	 * @param annotation
+	 * @return
+	 */
+	private List<Field> getAnnotatedFields(Class<? extends AbstractEntity> baseClass, Class<? extends Annotation> annotation) {
+	
+		return Arrays.stream(baseClass.getDeclaredFields()).filter(f -> f.isAnnotationPresent(annotation)).collect(Collectors.toList());
+    }
 	
 }

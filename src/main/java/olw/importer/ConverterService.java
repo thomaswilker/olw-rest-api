@@ -1,12 +1,15 @@
 package olw.importer;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
@@ -27,6 +30,7 @@ import lombok.Getter;
 import lombok.Setter;
 import olw.model.AbstractEntity;
 import olw.model.Area;
+import olw.model.Collection;
 import olw.model.Language;
 import olw.model.Lecturer;
 import olw.model.License;
@@ -40,9 +44,7 @@ import olw.model.Semester.Part;
 public class ConverterService {
 
 	private final ObjectMapper mapper = new ObjectMapper();
-	private Map<Long, Long> licenses = new HashMap<>();
-	private Map<Long, Long> lecturers = new HashMap<>();
-	private Map<Long, Long> languages = new HashMap<>();
+	private Map<Class<? extends AbstractEntity>, Map<Long,Long>> entityMaps = new HashMap<>();
 	
 	final Logger logger = Logger.getLogger(this.getClass());
 	
@@ -65,32 +67,71 @@ public class ConverterService {
 		return (JpaRepository<T, Long>) repositories.getRepositoryFor(forClass);
 	}
 	
-	private <T extends AbstractEntity> T findOne(Class<T> ofClass, Long id) {
-		return getRepository(ofClass).findOne(id);
+	private <T extends AbstractEntity> T findOne(Class<T> ofClass, JsonNode node) {
+		
+		return findOneById(ofClass, node.get("id").asLong());
+	}
+	
+	private <T extends AbstractEntity> T findOneById(Class<T> ofClass, Long id) {
+		
+		Long entityId = entityMaps.get(ofClass).get(id);
+		return getRepository(ofClass).findOne(entityId);
+	}
+	
+	public <T extends AbstractEntity, C extends java.util.Collection<T>> C findAll(Class<T> asClass, Iterable<JsonNode> array, Supplier<C> supplier) {
+		
+		return StreamSupport.stream(array.spliterator(), false).map(a -> findOneById(asClass, a.get("id").asLong())).collect(Collectors.toCollection(supplier));
+	}
+	
+	private Collection convert(JsonNode node, Collection o)  {
+		
+		Set<Area> areas = findAll(Area.class, node.get("areas"), HashSet::new);
+		o.setAreas(areas);
+		
+		Set<Lecturer> lecturers = findAll(Lecturer.class, node.get("users"), HashSet::new);
+		o.setLecturers(lecturers);
+		
+		Set<Semester> semesters = findAll(Semester.class, node.get("semesters"), HashSet::new);
+		o.setSemesters(semesters);
+		
+		JsonNode resources = node.get("resources");
+		JsonNode rubrics = node.get("rubrics");
+		
+////		List<Material> materials = StreamSupport.stream(node.get("collectionElements").spliterator(), false).flatMap(x -> {
+////			
+////			String p = x.asText();
+////			if(resources.has(p)) {
+////				getLogger().info("lambda: " + x);
+////				Material m = findOneById(Material.class, x.asLong());
+////				return Stream.of(m);
+////			} else {
+////				return Stream.empty();
+////			}
+////			
+////			
+//////			else if(rubrics.has(p)) {
+//////				return StreamSupport.stream(rubrics.get(p).get("resources").spliterator(), false)
+//////											.map(r -> findOneById(Material.class, resources.get(r.asText()).asLong()));
+//////			} 
+//			
+//		}).collect(Collectors.toList());
+//		
+//		o.setMaterials(materials);
+		
+		return o;
 	}
 	
 	private Material convert(JsonNode node, Material o)  {
 		
-		
-		JsonNode licenseNode = node.get("licenseType");
-		Long licenseId = 1l; 
-		if(licenseNode != null) {
-			licenseId = licenseNode.asLong();
-		} 
-		
-		License license = findOne(License.class, licenses.get(licenseId));
+		License license = findOneById(License.class, node.get("licenseType").asLong());
 		o.setLicense(license);
 		
-		ArrayNode users = (ArrayNode) node.get("users");
-		
-		Set<Lecturer> l = StreamSupport.stream(users.spliterator(), false)
-								.map(u -> findOne(Lecturer.class, lecturers.get(u.get("id").asLong())))
-								.collect(Collectors.toSet());
-		o.setLecturers(l);
+		Set<Lecturer> lecturer = findAll(Lecturer.class, node.get("users"), HashSet::new);
+		o.setLecturers(lecturer);
 		
 		ArrayNode langArray = (ArrayNode) node.get("languages");
 		Set<Language> lang = StreamSupport.stream(langArray.spliterator(), false)
-				.map(u -> findOne(Language.class, languages.get(u.get("id").asLong())))
+				.map(u -> findOne(Language.class, u))
 				.collect(Collectors.toSet());
 		o.setLanguages(lang);
 		
@@ -125,14 +166,13 @@ public class ConverterService {
 		return o;
 	}
 	
-	public <T, C extends Collection<T>> C convert(Iterable<JsonNode> array, Class<T> asClass, Supplier<C> supplier) {
+	public <T, C extends java.util.Collection<T>> C convert(Iterable<JsonNode> array, Class<T> asClass, Supplier<C> supplier) {
 		System.out.println("convert iterable of class " + asClass);
 		
 		return StreamSupport.stream(array.spliterator(), false)
 				 .map(n -> convert(n, asClass))
 				 .collect(Collectors.toCollection(supplier));
 	}
-	
 	
 	private <T> Method getConverterMethod(Class<T> asClass) throws NoSuchMethodException, SecurityException {
 		return this.getClass().getDeclaredMethod("convert", JsonNode.class, asClass);
