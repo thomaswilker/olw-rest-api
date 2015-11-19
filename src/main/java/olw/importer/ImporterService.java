@@ -175,9 +175,9 @@ public class ImporterService {
 	}
 	
 	
-	public Map<Long, Long> importMaterials() {
+	public Map<Long, Material> importMaterials() {
 		
-		Map<Long, Long> materials = new HashMap<>();
+		Map<Long, Material> materials = new HashMap<>();
 		
 		try {
 			
@@ -198,7 +198,7 @@ public class ImporterService {
 			
 			converterService.setEntityMaps(entityMaps);
 			List<Material> materialList = converterService.convert(list, Material.class, ArrayList::new);
-			materials = materialList.stream().collect(Collectors.toMap(m-> m.getId(), m -> { materialRepository.save(m); return m.getId();}));
+			materials = materialList.stream().collect(Collectors.toMap(m-> m.getId(), m -> (Material) materialRepository.save(m)));
 			
 			
 		} catch(Exception e) {
@@ -214,7 +214,7 @@ public class ImporterService {
 			indexedCollectionRepository.deleteAll();
 			collectionRepository.deleteAll();
 			
-			converterService.getEntityMaps().put(Material.class, importMaterials());
+			converterService.setMaterialMap(importMaterials());
 			
 			String url = restResource.get(Collection.class);
 			Collection c = converterService.convert(findOne(id.intValue(), url).asNode(), Collection.class);

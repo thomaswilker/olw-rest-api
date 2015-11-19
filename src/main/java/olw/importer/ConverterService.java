@@ -45,6 +45,7 @@ public class ConverterService {
 
 	private final ObjectMapper mapper = new ObjectMapper();
 	private Map<Class<? extends AbstractEntity>, Map<Long,Long>> entityMaps = new HashMap<>();
+	private Map<Long, Material> materialMap = new HashMap<>();
 	
 	final Logger logger = Logger.getLogger(this.getClass());
 	
@@ -97,26 +98,24 @@ public class ConverterService {
 		JsonNode resources = node.get("resources");
 		JsonNode rubrics = node.get("rubrics");
 		
-////		List<Material> materials = StreamSupport.stream(node.get("collectionElements").spliterator(), false).flatMap(x -> {
-////			
-////			String p = x.asText();
-////			if(resources.has(p)) {
-////				getLogger().info("lambda: " + x);
-////				Material m = findOneById(Material.class, x.asLong());
-////				return Stream.of(m);
-////			} else {
-////				return Stream.empty();
-////			}
-////			
-////			
-//////			else if(rubrics.has(p)) {
-//////				return StreamSupport.stream(rubrics.get(p).get("resources").spliterator(), false)
-//////											.map(r -> findOneById(Material.class, resources.get(r.asText()).asLong()));
-//////			} 
-//			
-//		}).collect(Collectors.toList());
-//		
-//		o.setMaterials(materials);
+		List<Material> materials = StreamSupport.stream(node.get("collectionElements").spliterator(), false).flatMap(x -> {
+			
+			String p = x.asText();
+			if(resources.has(p)) {
+				Material m = materialMap.get(x.asLong());
+				return Stream.of(m);
+			} else {
+				return Stream.empty();
+			}
+			
+//			else if(rubrics.has(p)) {
+//				return StreamSupport.stream(rubrics.get(p).get("resources").spliterator(), false)
+//											.map(r -> findOneById(Material.class, resources.get(r.asText()).asLong()));
+//			} 
+			
+		}).collect(Collectors.toList());
+		
+		o.setMaterials(materials);
 		
 		return o;
 	}
