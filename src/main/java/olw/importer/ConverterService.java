@@ -2,6 +2,7 @@ package olw.importer;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -86,9 +87,11 @@ public class ConverterService {
 	
 	private Collection convert(JsonNode node, Collection o)  {
 		
+		o.setOldId(o.getId());
+
+		o.setDate(new Date(node.get("creationDate").asLong()));
 		Set<Area> areas = findAll(Area.class, node.get("areas"), HashSet::new);
 		o.setAreas(areas);
-		
 		Set<Lecturer> lecturers = findAll(Lecturer.class, node.get("users"), HashSet::new);
 		o.setLecturers(lecturers);
 		
@@ -104,14 +107,12 @@ public class ConverterService {
 			if(resources.has(p)) {
 				Material m = materialMap.get(x.asLong());
 				return Stream.of(m);
+			} else if(rubrics.has(p)) {
+				return StreamSupport.stream(rubrics.get(p).get("resources").spliterator(), false)
+						.map(r -> materialMap.get(r.asLong()));
 			} else {
 				return Stream.empty();
 			}
-			
-//			else if(rubrics.has(p)) {
-//				return StreamSupport.stream(rubrics.get(p).get("resources").spliterator(), false)
-//											.map(r -> findOneById(Material.class, resources.get(r.asText()).asLong()));
-//			} 
 			
 		}).collect(Collectors.toList());
 		
@@ -122,6 +123,7 @@ public class ConverterService {
 	
 	private Material convert(JsonNode node, Material o)  {
 		
+		o.setOldId(o.getId());
 		License license = findOneById(License.class, node.get("licenseType").asLong());
 		o.setLicense(license);
 		

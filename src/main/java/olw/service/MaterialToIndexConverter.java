@@ -21,6 +21,7 @@ public class MaterialToIndexConverter implements Converter<Material, IndexedMate
 		im.setLanguages(new ArrayList<>(material.getLanguages()));
 		im.setLecturer(new ArrayList<>(material.getLecturers()));
 		im.setTags(new ArrayList<>(material.getTags()));
+		im.setCollections(material.getCollections());
 		return im;
 	}
 

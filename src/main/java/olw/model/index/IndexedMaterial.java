@@ -6,15 +6,13 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.MultiField;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import olw.model.Area;
+import olw.model.Collection;
 import olw.model.Language;
 import olw.model.Lecturer;
 import olw.model.License;
@@ -48,5 +46,7 @@ public class IndexedMaterial extends IndexedEntity {
 	private List<Lecturer> lecturer;
 	
 	private License license;
+	
+	private List<Collection> collections;
 	
 }

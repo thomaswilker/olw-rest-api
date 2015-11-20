@@ -1,32 +1,27 @@
 package olw.importer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
-import org.neo4j.cypher.internal.compiler.v2_1.ast.rewriters.collapseInCollectionsContainingConstants;
-import org.neo4j.cypher.internal.compiler.v2_2.perty.recipe.formatErrors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.support.Repositories;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,7 +43,6 @@ import olw.repository.LicenseRepository;
 import olw.repository.MaterialRepository;
 import olw.repository.SectionRepository;
 import olw.repository.index.IndexedMaterialRepository;
-import scala.annotation.meta.setter;
 
 @Service
 public class ImporterService {
@@ -134,7 +128,7 @@ public class ImporterService {
 			JpaRepository<T, Long> repository = getRepository(forClass); 
 			repository.deleteAll();
 			try {
-				ArrayNode array = find(url).asArray();
+				ArrayNode array = find(url, null).asArray();
 				List<T> list = converterService.convert(array, forClass, ArrayList::new);
 				
 				result = list.stream().collect(Collectors.toMap(e -> e.getId(), e -> { repository.save(e); return e.getId();}));
@@ -192,7 +186,7 @@ public class ImporterService {
 			createSections(entityMaps.get(Area.class));
 			
 			String materialUrl = restCollection.get(Material.class);
-			List<JsonNode> list = StreamSupport.stream(find(materialUrl).asArray().spliterator(), false)
+			List<JsonNode> list = StreamSupport.stream(find(materialUrl, null).asArray().spliterator(), false)
 															  	.collect(Collectors.toList());
 			
 			
@@ -216,11 +210,25 @@ public class ImporterService {
 			
 			converterService.setMaterialMap(importMaterials());
 			
-			String url = restResource.get(Collection.class);
-			Collection c = converterService.convert(findOne(id.intValue(), url).asNode(), Collection.class);
+			String allIdsUrl = "/collection-overview/filter/index/all";
+			MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+			params.add("pick", "id");
 			
-			String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(c);
-			System.out.println(s);
+			
+			StreamSupport.stream(find(allIdsUrl,params).asArray().spliterator(), false).forEach(i -> {
+				try {
+					String url = restResource.get(Collection.class);
+					JsonNode collectionNode = findOne(i.get("id").asInt(), url).asNode();
+					if(!collectionNode.get("name").isNull() && collectionNode.get("name").asText().length() > 0) {
+						Collection c = converterService.convert(collectionNode, Collection.class);
+						collectionRepository.save(c);
+					}
+				} catch (Exception e) {
+					logger.info("error with collection " + i.get("id").asText());
+					logger.info("message: " + e.getLocalizedMessage());
+				}
+			});
+			
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -228,18 +236,20 @@ public class ImporterService {
 	}
 	
 	
-	private AjaxResult findOne(Integer id, String... pathSegments) {
-		pathSegments = (String[]) ArrayUtils.add(pathSegments, id.toString());
-		return find(pathSegments);
+	private AjaxResult findOne(Integer id, String path) {
+		return find(path + "/" + id, null);
 	}
 	
-	private AjaxResult find(String... pathSegments) {
-		return new AjaxResult(template.getForObject(select(pathSegments).toUriString(), String.class));
+	private AjaxResult find(String path, MultiValueMap<String, String> params) {
+		return new AjaxResult(template.getForObject(select(path, params).toUriString(), String.class));
 	}
 	
-	private UriComponentsBuilder select(String... path) {
-		List<String> segments = Arrays.asList(path).stream().flatMap(s -> Stream.of(s.split("/"))).collect(Collectors.toList());
-		return UriComponentsBuilder.fromHttpUrl(api).pathSegment(segments.toArray(new String[]{}));
+	private UriComponentsBuilder select(String path, MultiValueMap<String, String> params) {
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(api).path(path); 
+		if(params != null) {
+			builder.queryParams(params);
+		}
+		return builder;
 	}
 	
 }

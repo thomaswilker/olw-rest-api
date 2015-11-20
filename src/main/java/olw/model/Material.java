@@ -38,6 +38,7 @@ public class Material extends AbstractEntity {
 	private String uuid = UUID.randomUUID().toString();
 	private String name;
 	private String note;
+	private Long oldId;
 	
 	@Size(max=1000)
 	private String description;

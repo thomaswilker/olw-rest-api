@@ -79,7 +79,9 @@ public class IndexService {
 		
 		writeToIndex(entity);
 		getAnnotatedFields(entity.getClass(), ContainedIn.class).forEach(f -> run(f, entity, this::writeToIndexRecursivly));
-		getAnnotatedFields(entity.getClass(), IndexEmbedded.class).forEach(f -> run(f, entity, this::writeToIndex));
+		List<Field> embedded = getAnnotatedFields(entity.getClass(), IndexEmbedded.class);
+		logger.info("embedded fields: " + embedded.size());
+		embedded.forEach(f -> run(f, entity, this::writeToIndex));
 	    	
 	}
 	
@@ -90,6 +92,7 @@ public class IndexService {
 	 */
 	private <T extends AbstractEntity> void writeToIndex(T entity) {
 		
+		logger.info("write to index " + entity.getClass() + " with id " + entity.getId());
 		if(isIndexable(entity)) {
 				
 			Class<? extends IndexedEntity> targetClass = entity.getClass().getAnnotation(IndexedBy.class).value();
